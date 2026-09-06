@@ -11,7 +11,7 @@ class Tag extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name'
+        'name',
     ];
 
     public function contacts(): BelongsToMany
