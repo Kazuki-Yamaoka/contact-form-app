@@ -1,9 +1,10 @@
 [users]
   id (PK)
-  last name
-  first name
+  name
   email
+  email_verified_at
   password
+  remember_token
   created_at
   updated_at
 
@@ -11,33 +12,34 @@
 
 [categories]
   id (PK)
-  name
+  content
   created_at
   updated_at
     |
-    | 多:1
+    | 1:多
     |
-[contacts]                      [tag]
-  id (PK)                       id (PK)
-  last name                     name
-  first name                    created_at
-  gender                        updated_at
-  email                           |
-  phone number                    |
-  address                         |
-  building                        |
-  inquiry                         |
-  created_at                      |
-  updated_at                      |
-    |                             |
-    | 　　　                       | 
-    |                             |
-    +-----------------------------+
-                | 多:多
+[contacts]                          [tag]
+  id (PK)                           id (PK)
+  category_id(FK) --> category.id   name
+  first_name                        created_at
+  last_name                         updated_at
+  gender                            |
+  email                             |
+  tel                               |
+  address                           |
+  building                          |
+  detail                            |
+  created_at                        |
+  updated_at                        |
+    |                               |
+    |1:多　　                        | 1:多
+    |                               |
+    +-------------------------------+
+                | 
                 v
             [contact_tag]
               id (PK)
-              category(FK) --> categories.id
+              contact_id(FK) --> contacts.id
               tag_id (FK) -----> tags.id
               created_at
               updated_at
