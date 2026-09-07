@@ -22,7 +22,7 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/contacts/{contact}', [AdminController::class, 'show'])->name('admin.show');
-    Route::get('/admin/contacts/{contact}', [AdminController::class, 'destroy'])->name('admin.destroy');
+    Route::delete('/admin/contacts/{contact}', [AdminController::class, 'destroy'])->name('admin.destroy');
 });
 
 Route::get('/contacts', fn() => 'お問い合わせフォーム（準備中）')->name('contacts.index');
