@@ -14,6 +14,8 @@ class ContactController extends Controller
     //
     public function index()
     {
+        
+
         $categories = Category::all();
 
         $tags = Tag::all();
@@ -36,8 +38,17 @@ class ContactController extends Controller
         return view('contact.confirm', compact('validated', 'category', 'tags'));
     }
 
-    public function store()
+    public function store(StoreContactRequest $request)
     {
+        $validated = $request->validated();
+
+        $contact = Contact::create($validated);
+
+        // 選択されたタグ（中間テーブル contact_tag）を保存
+        if (!empty($validated['tag_ids'])) {
+            $contact->tags()->sync($validated['tag_ids']);
+        }
+
         return redirect()->route('contacts.thanks');
     }
 

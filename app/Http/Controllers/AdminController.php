@@ -15,12 +15,14 @@ class AdminController extends Controller
     public function index()
     {
 
-$contacts = Contact::with(['categories', 'tags'])
+        $contacts = Contact::with(['categories', 'tags'])
                     ->paginate(7);
 
         $categories = Category::all();
 
-        return view('admin.index', compact('contacts', 'categories'));
+        $tags = Tag::all();
+
+        return view('admin.index', compact('contacts', 'categories','tags'));
     }
 
     public function show(Contact $contact)
