@@ -14,9 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
 
 // 仮ルート（CRUDで本実装に置き換え）
 Route::middleware('auth')->group(function () {
@@ -24,6 +21,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/', [ContactController::class, 'index'])->name('contacts.index');
-Route::get('/contacts/confirm', [ContactController::class, 'confirm'])->name('contacts.confirm');
+Route::get('/contacts', [ContactController::class, 'index']); // バリデーション失敗時
+
+Route::post('/contacts/confirm', [ContactController::class, 'confirm'])->name('contacts.confirm');
 Route::post('/contacts', [ContactController::class, 'store'])->name('contacts.store');
 Route::get('/thanks', [ContactController::class, 'thanks'])->name('contacts.thanks');

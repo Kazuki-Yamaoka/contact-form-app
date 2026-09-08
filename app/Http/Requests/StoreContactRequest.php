@@ -11,7 +11,7 @@ class StoreContactRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -27,8 +27,9 @@ class StoreContactRequest extends FormRequest
             'gender' => 'required|integer|in:1,2,3',
             'email' => 'required|string|email|max:255',
             'tel' => 'required|string|regex:/^[0-9]{10,11}$/',
+            'address' => 'required|string|max:255',
             'building' => 'nullable|string|max:255',
-            'category_Id' => 'required|integer|exists:category,id',
+            'category_id' => 'required|integer|exists:categories,id',
             'detail' => 'required|string|max:120',
         ];
     }
@@ -40,7 +41,7 @@ class StoreContactRequest extends FormRequest
             'last_name.required' => '名を入力してください',
             'gender.required' => '性別を選択してください',
             'email.required' => 'メールアドレスを入力してください',
-            'email.email' => 'メールアドレスの形式で入力してください'
+            'email.email' => 'メールアドレスの形式で入力してください',
             'tel.required' => '電話番号を入力してください',
             'address.required' => '住所を入力してください',
             'category_id.required' => 'お問い合わせの種類を選択してください',
