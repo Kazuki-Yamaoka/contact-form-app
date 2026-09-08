@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,7 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 // 仮ルート（CRUDで本実装に置き換え）
 Route::middleware('auth')->group(function () {
-    Route::get('/admin', fn() => 'お問い合わせ一覧（準備中）')->name('admin.index');    
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin/contacts/{contact}', [AdminController::class, 'show'])->name('admin.show');
+    Route::delete('/admin/contacts/{contact}', [AdminController::class, 'destroy'])->name('admin.destroy');
 });
 
 Route::get('/', [ContactController::class, 'index'])->name('contacts.index');
