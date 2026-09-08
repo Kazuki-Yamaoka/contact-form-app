@@ -23,11 +23,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/contacts/{contact}', [AdminController::class, 'show'])->name('admin.show');
     Route::delete('/admin/contacts/{contact}', [AdminController::class, 'destroy'])->name('admin.destroy');
 
-    Route::get('/admin/tags', [AdminController::class, 'index']);
-    Route::post('/admin/tags', [TagController::class, 'store'])->name('tags.store');
-    Route::get('/admin/tags/{tag}/edit', [TagController::class, 'edit'])->name('tags.edit');
-    Route::put('/admin/tags/{tag}', [TagController::class, 'store'])->name('tags.update');
-    Route::delete('/admin/tags/{tag}', [TagController::class, 'update'])->name('tags.update');
+    Route::post('/admin/tags', [TagController::class, 'store'])->name('admin.tags.store');
+    Route::get('/admin/tags/{tag}/edit', [TagController::class, 'edit'])->name('admin.tags.edit');
+    Route::put('/admin/tags/{tag}', [TagController::class, 'update'])->name('admin.tags.update');
+    Route::delete('/admin/tags/{tag}', [TagController::class, 'destroy'])->name('admin.tags.destroy');
 });
 
 Route::get('/', [ContactController::class, 'index'])->name('contacts.index');

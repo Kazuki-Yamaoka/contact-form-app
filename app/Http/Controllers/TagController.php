@@ -10,32 +10,32 @@ use Illuminate\Http\Request;
 class TagController extends Controller
 {
     //
-    public function store(TagRequest $request)
+    public function store(StoreTagRequest $request, Tag $Tag)
     {
         $validated = $request->validated();
 
         $tag = Tag::create($validated);
 
-        return redirect()->route('tags.store');
+        return redirect()->route('admin.index');
     }
 
     public function edit(Tag $tag)
     {
-        return view('tags.edit', compact('tag'));
+        return view('admin.tags.edit', compact('tag'));
     }
 
     public function update(UpdateTagRequest $request, Tag $tag)
     {
         $tag->update($request->validated());
 
-        return redirect()->route('tags.update');
+        return redirect()->route('admin.index')->with('success', 'タグを更新しました');
     }
 
-    public function destroy()
+    public function destroy(Tag $tag)
     {
 
         $tag->delete();
 
-        return redirect()->route('tags.destroy');
+        return redirect()->route('admin.index')->with('success', 'タグを削除しました');
     }
 }

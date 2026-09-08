@@ -20,7 +20,9 @@ class AdminController extends Controller
 
         $categories = Category::all();
 
-        return view('admin.index', compact('contacts', 'categories'));
+        $tags = Tag::all();
+
+        return view('admin.index', compact('contacts', 'categories','tags'));
     }
 
     public function show(Contact $contact)
