@@ -14,6 +14,8 @@ class ContactController extends Controller
     //
     public function index()
     {
+        
+
         $categories = Category::all();
 
         $tags = Tag::all();

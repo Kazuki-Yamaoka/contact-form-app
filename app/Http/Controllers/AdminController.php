@@ -15,7 +15,7 @@ class AdminController extends Controller
     public function index()
     {
 
-$contacts = Contact::with(['categories', 'tags'])
+        $contacts = Contact::with(['categories', 'tags'])
                     ->paginate(7);
 
         $categories = Category::all();
