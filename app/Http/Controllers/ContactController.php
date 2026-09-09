@@ -14,8 +14,7 @@ class ContactController extends Controller
     //
     public function index()
     {
-        
-
+    
         $categories = Category::all();
 
         $tags = Tag::all();
@@ -44,7 +43,8 @@ class ContactController extends Controller
 
         $contact = Contact::create($validated);
 
-        // 選択されたタグ（中間テーブル contact_tag）を保存
+        // 選択されたタグ（中間テーブル contact_tag）を保
+        // 存
         if (!empty($validated['tag_ids'])) {
             $contact->tags()->sync($validated['tag_ids']);
         }
