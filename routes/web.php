@@ -17,11 +17,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-// 仮ルート（CRUDで本実装に置き換え）
 Route::middleware('auth')->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/contacts/{contact}', [AdminController::class, 'show'])->name('admin.show');
     Route::delete('/admin/contacts/{contact}', [AdminController::class, 'destroy'])->name('admin.destroy');
+    Route::get('/contacts/export', [AdminController::class, 'export'])->name('contacts.export');
 
     Route::post('/admin/tags', [TagController::class, 'store'])->name('admin.tags.store');
     Route::get('/admin/tags/{tag}/edit', [TagController::class, 'edit'])->name('admin.tags.edit');
