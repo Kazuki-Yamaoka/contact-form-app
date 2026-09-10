@@ -21,6 +21,17 @@ class IndexContactRequest extends FormRequest
      */
     public function rules(): array
     {
+        if ($this->is('api/*')) {
+            return [
+                'keyword' => 'nullable|string|max:255',
+                'gender' => 'nullable|integer|in:1,2,3',
+                'category_id' => 'nullable|integer|exists:categories,id',
+                'date' => 'nullable|date',
+                'per_page' => 'nullable|integer|min:1|max:100',
+                'page' => 'nullable|integer|min:1',
+            ];
+        }
+
         return [
             //
             'keyword' => 'nullable|string|max:255',
@@ -28,5 +39,13 @@ class IndexContactRequest extends FormRequest
             'category_id' => 'nullable|integer|exists:categories,id',
             'date' => 'nullable|date',
         ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'gender.in' => '性別の値が不正です',
+            'category_id.exists' => '選択されたカテゴリーが存在しません',
+        ]
     }
 }
