@@ -23,14 +23,14 @@ git clone git@github.com:Kazuki-Yamaoka/contact-form-app.git
 cd contact-form-app
 
 3. パッケージをインストール
-'''bash
+```bash
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     laravelsail/php82-composer:latest \
     composer install
-'''
+```
 
 4. 環境ファイルを作成
 cp .env.example .env
@@ -95,7 +95,6 @@ Git: 2.53.0
 
 # 開発環境URL
 - お問い合わせフォーム入力ページ http://localhost/contacts/
-- お問い合わせフォーム確認ページ http://localhost/contacts/confirm
 - サンクスページ http://localhost/thanks
 - 管理者登録画面 http://localhost/register
 - ログイン画面 http://localhost/login
