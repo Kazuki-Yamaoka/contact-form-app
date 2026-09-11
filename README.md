@@ -23,12 +23,14 @@ git clone git@github.com:Kazuki-Yamaoka/contact-form-app.git
 cd contact-form-app
 
 3. パッケージをインストール
+'''bash
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     laravelsail/php82-composer:latest \
     composer install
+'''
 
 4. 環境ファイルを作成
 cp .env.example .env
@@ -71,6 +73,8 @@ sail artisan migrate:fresh --seed
 12. テスト実行
 sail artisan test
 
+※Featureテストの作成まで間に合わなかったのでsail artisan testを実行する前にtests/Featureというフォルダを作成してください
+
 
 # 使用技術
 PHP: 8.5.9
@@ -90,13 +94,13 @@ Git: 2.53.0
 - DELETE /api/v1/contacts/{contact} お問い合わせ削除
 
 # 開発環境URL
-- お問い合わせフォーム入力ページ（http://localhost/contacts/）
-- お問い合わせフォーム確認ページ（http://localhost/contacts/confirm）
-- サンクスページ（http://localhost/thanks）
-- 管理者登録画面（http://localhost/register）
-- ログイン画面（http://localhost/login）
-- 管理画面（http://localhost/admin）
-- Mysql(http://localhost:8080/)
+- お問い合わせフォーム入力ページ http://localhost/contacts/
+- お問い合わせフォーム確認ページ http://localhost/contacts/confirm
+- サンクスページ http://localhost/thanks
+- 管理者登録画面 http://localhost/register
+- ログイン画面 http://localhost/login
+- 管理画面 http://localhost/admin
+- Mysql http://localhost:8080/
 
 # 作成者
 山岡 一幾
