@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/admin/tags/{tag}', [TagController::class, 'destroy'])->name('admin.tags.destroy');
 });
 
+
 Route::get('/', [ContactController::class, 'index'])->name('contacts.index');
 Route::get('/contacts', [ContactController::class, 'index']); // バリデーション失敗時
 

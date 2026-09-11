@@ -18,7 +18,7 @@
     |
     | 1:多
     |
-[contacts]                          [tag]
+[contacts]                          [tags]
   id (PK)                           id (PK)
   category_id(FK) --> category.id   name
   first_name                        created_at
