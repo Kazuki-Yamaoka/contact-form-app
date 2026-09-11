@@ -40,7 +40,7 @@ class AdminController extends Controller
 
     public function show(Contact $contact)
     {
-        $contact->load('categories','tags');
+        $contact->load('category','tags');
 
         return view('admin.show', compact('contact'));
     }
