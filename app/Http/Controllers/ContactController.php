@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\IndexsContactRequest;
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\TagRequest;
 use App\Models\Contact;
@@ -19,7 +20,7 @@ class ContactController extends Controller
 
         $tags = Tag::all();
 
-        return view('contact.index', compact('categories', 'tags'));
+        return view('contact.index', compact('categories', 'tags')); // contacts？
     }
 
     public function confirm(StoreContactRequest $request)
