@@ -6,7 +6,9 @@ use App\Models\User;
 use App\Models\Tag;
 use App\Models\Category;
 use App\Models\Contact;
-use PHPUnit\Framework\TestCase;
+// use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase; // DB初期化用
 
 class RelationTest extends TestCase
 {
@@ -14,7 +16,9 @@ class RelationTest extends TestCase
      * A basic unit test example.
      */
 
-    
+    use RefreshDatabase; // テスト実行ごとにDBをリセットする場合
+
+    /** @test */
     public function ひとつのカテゴリから複数のお問い合わせが取得できる()
     {
         // 1. Arrange（準備）
@@ -33,13 +37,14 @@ class RelationTest extends TestCase
 
     // 3. Assert（検証）
     // 他のカテゴリのContactは含まれず、自分の配下の 3件 だけが取得できているか
-    expect($contacts)->toHaveCount(3);
+    // expect($contacts)->toHaveCount(3);
+    $this->assertCount(3, $contacts);
     
     // データベース上の判定（PHPUnitスタイルの場合）
     // $this->assertCount(3, $category->contacts);
     }
 
-    
+    /** @test */
     public function お問い合わせが特定のカテゴリーに属し、複数のタグと正しく同期できる()
     {
         // 1. Arrange（事前準備）
@@ -47,21 +52,17 @@ class RelationTest extends TestCase
         $user = User::factory()->create();
         
         // カテゴリーを作成
-        $category = Category::factory()->create(['name' => '商品に関するお問い合わせ']);
+        $category = Category::factory()->create(['content' => '商品に関するお問い合わせ']);
 
         // 同期テスト用のタグを3つ作成
         $tags = Tag::factory()->count(3)->create();
-        
-        // お問い合わせを作成（初期状態ではタグなし）
-        $contact = Contact::factory()->create([
-            'category_id' => $category->id,
-        ]);
+    
 
         // --------------------------------------------------
         // 2. Act（実行：更新処理リクエスト）
         // --------------------------------------------------
         // 上記で作成した $category のID と $tags のID配列を送信
-        $response = $this->actingAs($user)->put(route('admin.contacts.update', ['contact' => $contact->id]), [
+        $response = $this->actingAs($user)->post(route('contacts.store'), [
             'category_id' => $category->id,
             'first_name'  => '山田',
             'last_name'   => '太郎',
@@ -82,13 +83,16 @@ class RelationTest extends TestCase
         $response->assertStatus(302);
 
         // ② カテゴリーとのリレーション（belongsTo）の検証
-        $contact->refresh(); // データベースの最新状態に更新
-        expect($contact->category_id)->toBe($category->id);
-        expect($contact->category->name)->toBe('商品に関するお問い合わせ');
+        $contact = Contact::latest('id')->first();
+        // expect($contact->category_id)->toBe($category->id);
+        // expect($contact->category->content)->toBe('商品に関するお問い合わせ');
+        $this->assertEquals($category->id, $contact->category_id);
+        $this->assertEquals('商品に関するお問い合わせ', $contact->category->content);
 
         // ③ 複数のタグとの同期（sync / belongsToMany）の検証
         // 中間テーブル（contact_tag）に3つのタグが紐付いているか検証
-        expect($contact->tags)->hasCount(3);
+        // expect($contact->tags)->hasCount(3);
+        $this->assertCount(3, $contact->tags);
         
         // 特定のタグIDがすべて紐付いているかデータベースでアサート
         foreach ($tags as $tag) {
@@ -99,7 +103,7 @@ class RelationTest extends TestCase
         }
     }
 
-    
+    /** @test */
     public function ひとつのタグが複数のお問い合わせに中間テーブルを介して紐づいている()
     {
         // 1. Arrange（事前準備）
@@ -138,12 +142,14 @@ class RelationTest extends TestCase
         $tag->refresh(); // 最新状態に更新
 
         // リレーション経由で取得した件数が3件であること
-        expect($tag->contacts)->hasCount(3);
+        // expect($tag->contacts)->hasCount(3);
+        $this->assertCount(3, $tag->contacts);
 
         // 取得したお問い合わせのID一覧に、作成した3件のIDがすべて含まれていること
         $linkedContactIds = $tag->contacts->pluck('id')->toArray();
         foreach ($contacts as $contact) {
-            expect($linkedContactIds)->toContain($contact->id);
+        //    expect($linkedContactIds)->toContain($contact->id);
+            $this->assertContains($contact->id, $linkedContactIds);
         }
     }
 }
