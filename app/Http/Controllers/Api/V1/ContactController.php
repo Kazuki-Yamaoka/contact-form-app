@@ -129,7 +129,7 @@ class ContactController extends Controller
                 'message' => 'お問い合わせが見つかりません',
             ], 404);
         }
-        */ 
+        */
 
         $contact->delete();
 
