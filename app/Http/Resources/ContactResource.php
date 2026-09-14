@@ -23,6 +23,7 @@ class ContactResource extends JsonResource
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'gender' => $this->gender,
+            'gender_label' => $this->gender_label, // 👈 これを追加！
             'email' => $this->email,
             'tel' => $this->tel,
             'address' => $this->address,
