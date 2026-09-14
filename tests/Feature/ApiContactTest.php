@@ -434,7 +434,7 @@ class ApiContactTest extends TestCase
         ]);
     }
 
-        /** @test */
+    /** @test */
     public function 存在しないお問い合わせIDで削除しようとすると404エラーを返す(): void
     {
         // Act
