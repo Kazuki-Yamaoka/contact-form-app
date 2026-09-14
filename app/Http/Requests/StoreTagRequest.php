@@ -23,7 +23,7 @@ class StoreTagRequest extends FormRequest
     {
         return [
             //
-            'name' => 'required|max:50|unique:tags',
+            'name' => 'required|string|max:50|unique:tags',
         ];
     }
 

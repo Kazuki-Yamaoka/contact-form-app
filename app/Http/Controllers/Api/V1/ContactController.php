@@ -7,7 +7,7 @@ use App\Http\Resources\ContactResource;
 use App\Http\Requests\IndexContactRequest;
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\UpdateContactRequest;
-use App\Models\Task;
+use App\Models\Tag;
 use App\Models\Contact;
 use App\Models\Category;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -94,7 +94,9 @@ class ContactController extends Controller
         //
         $validated = $request->validated();
 
-        $contact = Contact::update($validated);
+        $contact->update($validated);
+
+        $tagIds = $request->input('tags', []);
 
         $contact->tags()->sync($tagIds);
 
