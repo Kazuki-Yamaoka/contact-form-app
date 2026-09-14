@@ -23,10 +23,9 @@ class StoreContactRequest extends FormRequest
     {
         if ($this->is('api/*')) {
             return [
-                'keyword'     => ['nullable', 'string', 'max:255'], // ※検索用の場合は nullable の可能性が高いです
-                'gender'      => ['required', 'integer', 'in:1,2,3'],
                 'first_name'  => ['required', 'string', 'max:255'],
                 'last_name'   => ['required', 'string', 'max:255'],
+                'gender'      => ['required', 'integer', 'in:1,2,3'],
                 'email'       => ['required', 'string', 'email', 'max:255'],
                 'tel'         => ['required', 'string', 'regex:/^[0-9]{10,11}$/'], // ★先頭にも / を追加
                 'address'     => ['required', 'string', 'max:255'],
