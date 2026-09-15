@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateContactRequest extends FormRequest
@@ -17,24 +18,24 @@ class UpdateContactRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'first_name'  => ['required', 'string', 'max:255'],
-            'last_name'   => ['required', 'string', 'max:255'],
-            'gender'      => ['required', 'integer', 'in:1,2,3'],
-            'email'       => ['required', 'string', 'email', 'max:255'],
-            'tel'         => ['required', 'string', 'regex:/^[0-9]{10,11}$/'], // ★先頭と末尾に / を配置
-            'address'     => ['required', 'string', 'max:255'],
-            'building'    => ['nullable', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'gender' => ['required', 'integer', 'in:1,2,3'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'tel' => ['required', 'string', 'regex:/^[0-9]{10,11}$/'], // ★先頭と末尾に / を配置
+            'address' => ['required', 'string', 'max:255'],
+            'building' => ['nullable', 'string', 'max:255'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
-            'detail'      => ['required', 'string', 'max:120'],
+            'detail' => ['required', 'string', 'max:120'],
 
             // ★配列データとその中身（各要素）の検証に分離
-            'tag_ids'     => ['nullable', 'array'],
-            'tag_ids.*'   => ['integer', 'exists:tags,id'],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', 'exists:tags,id'],
         ];
     }
 
@@ -51,9 +52,9 @@ class UpdateContactRequest extends FormRequest
             'category_id.required' => 'お問い合わせの種類を選択してください',
             'detail.required' => 'お問い合わせ内容を入力してください',
             'detail.max' => 'お問い合わせ内容は120文字以内で入力してください',
-            'tel.regex'   => '電話番号はハイフンなしの10〜11桁で入力してください',
+            'tel.regex' => '電話番号はハイフンなしの10〜11桁で入力してください',
             'gender.in' => '性別の値が不正です',
-            'category_id.exists'   => '選択されたカテゴリーが存在しません',
+            'category_id.exists' => '選択されたカテゴリーが存在しません',
             'tag_ids[].exists' => '選択されたタグが存在しません',
         ];
     }

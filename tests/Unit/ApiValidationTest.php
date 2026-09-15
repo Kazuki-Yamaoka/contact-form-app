@@ -2,25 +2,22 @@
 
 namespace Tests\Unit;
 
-
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Tag;
-use App\Models\User;
 // use PHPUnit\Framework\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase; 
 
 class ApiValidationTest extends TestCase
 {
     /**
      * A basic unit test example.
      */
-
     use RefreshDatabase;
 
     /** @test */
-    public function お問い合わせ一覧を検索してAPIで取得できる(): void
+    public function お問い合わせ一覧を検索して_ap_iで取得できる(): void
     {
         // Arrange
         $category = Category::factory()->create();
@@ -35,49 +32,49 @@ class ApiValidationTest extends TestCase
 
         // Act: API用の getJson と正確なルート名を使用
         $response = $this->getJson(route('v1.contacts.index', [
-            'keyword'     => 'テスト',
-            'gender'      => 1,
+            'keyword' => 'テスト',
+            'gender' => 1,
             'category_id' => $category->id,
-            'date'        => '2026-09-12',
+            'date' => '2026-09-12',
         ]));
 
         // Assert
         $response->assertStatus(200)
-                    ->assertJsonStructure([
-                        'data' => [
-                            '*' => [
-                                'id',
-                                'category',
-                                'first_name',
-                                'last_name',
-                                'gender',
-                                'email',
-                                'tel',
-                                'address',
-                                'building',
-                                'detail',
-                                'tags',
-                                'created_at',
-                                'updated_at',
-                            ],
-                        ],
-                        'links' => [
-                            'first',
-                            'last',
-                            'prev',
-                            'next',
-                        ],
-                        'meta' => [
-                            'current_page',
-                            'from',
-                            'last_page',
-                            'links',
-                            'path',
-                            'per_page',
-                            'to',
-                            'total',
-                        ],
-                    ]);
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'category',
+                        'first_name',
+                        'last_name',
+                        'gender',
+                        'email',
+                        'tel',
+                        'address',
+                        'building',
+                        'detail',
+                        'tags',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+                'links' => [
+                    'first',
+                    'last',
+                    'prev',
+                    'next',
+                ],
+                'meta' => [
+                    'current_page',
+                    'from',
+                    'last_page',
+                    'links',
+                    'path',
+                    'per_page',
+                    'to',
+                    'total',
+                ],
+            ]);
     }
 
     /** @test */
@@ -90,7 +87,7 @@ class ApiValidationTest extends TestCase
 
         // Assert: 422 エラーと JSON のエラーメッセージ構造を検証
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['gender']);
+            ->assertJsonValidationErrors(['gender']);
     }
 
     /** @test */
@@ -103,18 +100,18 @@ class ApiValidationTest extends TestCase
 
         // Assert: 422 エラーと JSON のエラーメッセージ構造を検証
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['category_id']);
+            ->assertJsonValidationErrors(['category_id']);
     }
 
     /** @test */
     public function test_returns_422_when_date_is_invalid_string()
     {
         $response = $this->getJson(route('v1.contacts.index', [
-            'date' => 'invalid-date-string', // 👈 文字列を渡す
+            'created_at' => 'invalid-date-string', // 👈 文字列を渡す
         ]));
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['date']);
+            ->assertJsonValidationErrors(['created_at']);
     }
 
     /** @test */
@@ -135,7 +132,7 @@ class ApiValidationTest extends TestCase
         ]));
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['per_page']);
+            ->assertJsonValidationErrors(['per_page']);
     }
 
     /**
@@ -150,15 +147,15 @@ class ApiValidationTest extends TestCase
 
         $response = $this->postJson(route('v1.contacts.store'), [
             'category_id' => $category->id,
-            'first_name'  => 'Yamada',
-            'last_name'   => 'Taro',
-            'gender'      => 1,
-            'email'       => 'test@example.com',
-            'tel'         => '09012345678',
-            'address'     => 'Tokyo',
-            'building'    => 'Building 101',
-            'detail'      => 'Test detail content.',
-            'tag_ids'     => [$tag->id], // 👈 配列として渡す
+            'first_name' => 'Yamada',
+            'last_name' => 'Taro',
+            'gender' => 1,
+            'email' => 'test@example.com',
+            'tel' => '09012345678',
+            'address' => 'Tokyo',
+            'building' => 'Building 101',
+            'detail' => 'Test detail content.',
+            'tag_ids' => [$tag->id], // 👈 配列として渡す
         ]);
 
         $response->assertStatus(201);
@@ -166,7 +163,7 @@ class ApiValidationTest extends TestCase
             'email' => 'test@example.com',
         ]);
         $this->assertDatabaseHas('contact_tag', [
-        'tag_id' => $tag->id,
+            'tag_id' => $tag->id,
         ]);
     }
 
@@ -180,16 +177,16 @@ class ApiValidationTest extends TestCase
         $response = $this->postJson(route('v1.contacts.store'), []);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors([
-                     'category_id',
-                     'first_name',
-                     'last_name',
-                     'gender',
-                     'email',
-                     'tel',
-                     'address',
-                     'detail',
-                 ]);
+            ->assertJsonValidationErrors([
+                'category_id',
+                'first_name',
+                'last_name',
+                'gender',
+                'email',
+                'tel',
+                'address',
+                'detail',
+            ]);
     }
 
     /**
@@ -203,17 +200,17 @@ class ApiValidationTest extends TestCase
 
         $response = $this->postJson(route('v1.contacts.store'), [
             'category_id' => $category->id,
-            'first_name'  => 'Yamada',
-            'last_name'   => 'Taro',
-            'gender'      => 1,
-            'email'       => 'invalid-email-format', // 不正なメール形式
-            'tel'         => '09012345678',
-            'address'     => 'Tokyo',
-            'detail'      => 'Test detail',
+            'first_name' => 'Yamada',
+            'last_name' => 'Taro',
+            'gender' => 1,
+            'email' => 'invalid-email-format', // 不正なメール形式
+            'tel' => '09012345678',
+            'address' => 'Tokyo',
+            'detail' => 'Test detail',
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['email']);
     }
 
     /**
@@ -227,16 +224,16 @@ class ApiValidationTest extends TestCase
 
         $response = $this->postJson(route('v1.contacts.store'), [
             'category_id' => $category->id,
-            'first_name'  => 'Yamada',
-            'last_name'   => 'Taro',
-            'gender'      => 1,
-            'email'       => 'test@example.com',
-            'tel'         => '090-1234-5678-99999999', // 長すぎる電話番号
-            'address'     => 'Tokyo',
-            'detail'      => 'Test detail',
+            'first_name' => 'Yamada',
+            'last_name' => 'Taro',
+            'gender' => 1,
+            'email' => 'test@example.com',
+            'tel' => '090-1234-5678-99999999', // 長すぎる電話番号
+            'address' => 'Tokyo',
+            'detail' => 'Test detail',
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['tel']);
+            ->assertJsonValidationErrors(['tel']);
     }
 }

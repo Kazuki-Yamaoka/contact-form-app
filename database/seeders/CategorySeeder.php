@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
@@ -22,7 +21,7 @@ class CategorySeeder extends Seeder
                 ['content' => '商品トラブル'],
                 ['content' => 'ショップへのお問い合わせ'],
                 ['content' => 'その他'],
-        )
-        ->create();
+            )
+            ->create();
     }
 }

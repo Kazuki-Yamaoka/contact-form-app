@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
 use App\Models\Tag;
-use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
@@ -21,6 +20,7 @@ class TagController extends Controller
 
     public function edit(Tag $tag)
     {
+
         return view('admin.tags.edit', compact('tag'));
     }
 

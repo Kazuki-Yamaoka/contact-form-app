@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTagRequest extends FormRequest
@@ -17,7 +18,7 @@ class UpdateTagRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -27,9 +28,9 @@ class UpdateTagRequest extends FormRequest
         ];
     }
 
-    public function messages():array
+    public function messages(): array
     {
-        return[
+        return [
             'name.required' => 'タグ名を入力してください',
             'name.max' => 'タグ名は50文字以内で入力してください',
             'name.unique' => 'そのタグ名は既に使用されています',

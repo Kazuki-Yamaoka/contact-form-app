@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\IndexContactRequest;
 use App\Http\Requests\ExportContactRequest;
+use App\Http\Requests\IndexContactRequest;
 use App\Models\Category;
-use App\Models\Tag;
 use App\Models\Contact;
-use Illuminate\Http\Request;
-
+use App\Models\Tag;
 
 class AdminController extends Controller
 {
@@ -19,35 +17,51 @@ class AdminController extends Controller
 
         $query = Contact::with(['category', 'tags']);
 
-        if (!empty($validated['keyword'])) {
+        // 1. キーワード検索（名前・メールアドレス）
+        if (! empty($validated['keyword'])) {
             $keyword = $validated['keyword'];
-
-        $query->where(function ($q) use ($keyword) {
-                $q->where('gender', 'like', "%{$keyword}%")
-                  ->orWhere('category_id', 'like', "%{$keyword}%")
-                  ->orWhere('date', 'like', "%{$keyword}%");
+            $query->where(function ($q) use ($keyword) {
+                $q->where('first_name', 'like', "%{$keyword}%")
+                    ->orWhere('last_name', 'like', "%{$keyword}%")
+                    ->orWhere('email', 'like', "%{$keyword}%");
             });
         }
 
+        // 2. 性別フィルタ
+        if (isset($validated['gender']) && $validated['gender'] !== '') {
+            $query->where('gender', $validated['gender']);
+        }
+
+        // 3. カテゴリフィルタ
+        if (! empty($validated['category_id'])) {
+            $query->where('category_id', $validated['category_id']);
+        }
+
+        // 4. 日付フィルタ（リクエストの 'date' を DB の 'created_at' にマッピング）
+        if (! empty($validated['date'])) {
+            $query->whereDate('created_at', $validated['date']);
+        }
+
+        // 1ページあたり7件ずつ取得
         $contacts = $query->latest()->paginate(7);
 
         $categories = Category::all();
-
         $tags = Tag::all();
 
-        return view('admin.index', compact('contacts', 'categories','tags'));
+        return view('admin.index', compact('contacts', 'categories', 'tags'));
     }
 
     public function show(Contact $contact)
     {
-        $contact->load('category','tags');
+
+        $contact->load('category', 'tags');
 
         return view('admin.show', compact('contact'));
     }
 
     public function destroy(Contact $contact)
     {
-        $contact->delete(); 
+        $contact->delete();
 
         return redirect()->route('admin.index');
     }
@@ -58,27 +72,27 @@ class AdminController extends Controller
         // 1. 検索クエリの構築 (index メソッドと同じ絞り込み条件を適用)
         $query = Contact::with(['category', 'tags']);
 
-        if (!empty($validated['keyword'])) {
+        if (! empty($validated['keyword'])) {
             $keyword = validated['keyword'];
             $query->where(function ($q) use ($keyword) {
                 $q->where('first_name', 'like', "%{$keyword}%")
-                  ->orWhere('last_name', 'like', "%{$keyword}%")
-                  ->orWhere('email', 'like', "%{$keyword}%");
+                    ->orWhere('last_name', 'like', "%{$keyword}%")
+                    ->orWhere('email', 'like', "%{$keyword}%");
             });
         }
 
-        if (!empty($validated['category_id'])) {
+        if (! empty($validated['category_id'])) {
             $query->where('category_id', $validated['category_id']);
         }
 
-        if (!empty($validated['gender'])) {
+        if (! empty($validated['gender'])) {
             $query->where('gender', $validated['gender']);
         }
 
         // 2. ファイル名とレスポンスヘッダーの設定
-        $fileName = 'contacts_' . date('Ymd_His') . '.csv';
+        $fileName = 'contacts_'.date('Ymd_His').'.csv';
         $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
         ];
 
@@ -108,7 +122,7 @@ class AdminController extends Controller
             $query->orderby('created_at', 'desc')->chunk(100, function ($contacts) use ($handle) {
                 foreach ($contacts as $contact) {
                     // 性別表記の変換例
-                    $genderText = match ((int)$contact->gender) {
+                    $genderText = match ((int) $contact->gender) {
                         1 => '男性',
                         2 => '女性',
                         3 => 'その他',
@@ -120,7 +134,7 @@ class AdminController extends Controller
 
                     fputcsv($handle, [
                         $contact->id,
-                        $contact->last_name . ' ' . $contact->first_name,
+                        $contact->last_name.' '.$contact->first_name,
                         $genderText,
                         $contact->email,
                         $contact->tel,
@@ -136,8 +150,6 @@ class AdminController extends Controller
 
             fclose($handle);
         }, 200, $headers);
-        
-
 
     }
 }
