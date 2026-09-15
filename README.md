@@ -94,7 +94,8 @@ Git: 2.53.0
 - DELETE /api/v1/contacts/{contact} お問い合わせ削除
 
 # 開発環境URL
-- お問い合わせフォーム入力ページ http://localhost/contacts/
+- お問い合わせフォーム入力ページ http://localhost/contactss
+- お問い合わせ確認ページ http://localhost/contacts/confirm
 - サンクスページ http://localhost/thanks
 - 管理者登録画面 http://localhost/register
 - ログイン画面 http://localhost/login
