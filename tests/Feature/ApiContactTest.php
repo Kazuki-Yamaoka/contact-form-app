@@ -176,13 +176,13 @@ class ApiContactTest extends TestCase
         // Act: 不正な値（存在しない性別、不正な日付フォーマット、文字列のページ数など）を指定
         $response = $this->getJson('/api/v1/contacts?' . http_build_query([
             'gender'   => 99,                   // in:1,2,3 違反
-            'date'     => 'invalid-date-format', // date 違反
+            'created_at'     => 'invalid-date-format', // date 違反
             'per_page' => 'not-a-number',       // integer 違反
         ]));
 
         // Assert: 422 エラーと該当のフィールドにバリデーションエラーが発生しているか確認
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['gender', 'date', 'per_page']);
+                ->assertJsonValidationErrors(['gender', 'created_at', 'per_page']);
     }
 
      /** @test */

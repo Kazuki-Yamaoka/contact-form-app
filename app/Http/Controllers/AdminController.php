@@ -19,27 +19,43 @@ class AdminController extends Controller
 
         $query = Contact::with(['category', 'tags']);
 
+        // 1. キーワード検索（名前・メールアドレス）
         if (!empty($validated['keyword'])) {
             $keyword = $validated['keyword'];
-
-        $query->where(function ($q) use ($keyword) {
-                $q->where('gender', 'like', "%{$keyword}%")
-                  ->orWhere('category_id', 'like', "%{$keyword}%")
-                  ->orWhere('date', 'like', "%{$keyword}%");
+            $query->where(function ($q) use ($keyword) {
+                $q->where('first_name', 'like', "%{$keyword}%")
+                ->orWhere('last_name', 'like', "%{$keyword}%")
+                ->orWhere('email', 'like', "%{$keyword}%");
             });
         }
 
+        // 2. 性別フィルタ
+        if (isset($validated['gender']) && $validated['gender'] !== '') {
+            $query->where('gender', $validated['gender']);
+        }
+
+        // 3. カテゴリフィルタ
+        if (!empty($validated['category_id'])) {
+            $query->where('category_id', $validated['category_id']);
+        }
+
+        // 4. 日付フィルタ（リクエストの 'date' を DB の 'created_at' にマッピング）
+        if (!empty($validated['date'])) {
+            $query->whereDate('created_at', $validated['date']);
+        }
+
+        // 1ページあたり7件ずつ取得
         $contacts = $query->latest()->paginate(7);
 
         $categories = Category::all();
-
         $tags = Tag::all();
 
-        return view('admin.index', compact('contacts', 'categories','tags'));
+        return view('admin.index', compact('contacts', 'categories', 'tags'));
     }
 
     public function show(Contact $contact)
     {
+
         $contact->load('category','tags');
 
         return view('admin.show', compact('contact'));

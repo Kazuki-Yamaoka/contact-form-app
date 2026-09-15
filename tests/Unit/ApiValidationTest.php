@@ -110,11 +110,11 @@ class ApiValidationTest extends TestCase
     public function test_returns_422_when_date_is_invalid_string()
     {
         $response = $this->getJson(route('v1.contacts.index', [
-            'date' => 'invalid-date-string', // 👈 文字列を渡す
+            'created_at' => 'invalid-date-string', // 👈 文字列を渡す
         ]));
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['date']);
+                ->assertJsonValidationErrors(['created_at']);
     }
 
     /** @test */
