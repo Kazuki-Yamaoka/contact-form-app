@@ -22,6 +22,11 @@ class ContactController extends Controller
 
     public function confirm(StoreContactRequest $request)
     {
+        // 入力値が存在しない・セッションが切れている場合は入力画面へリダイレクト
+        if (! $request->has('email')) { // 例: 必須項目の有無で判定
+            return redirect()->route('contacts.index');
+        }
+
         $validated = $request->validated();
 
         $category = Category::find($validated['category_id']);
