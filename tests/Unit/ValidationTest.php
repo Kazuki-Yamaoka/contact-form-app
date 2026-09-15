@@ -2,24 +2,23 @@
 
 namespace Tests\Unit;
 
-use App\Models\User;
-use App\Models\Tag;
 use App\Models\Category;
 use App\Models\Contact;
+use App\Models\Tag;
+use App\Models\User;
 // use PHPUnit\Framework\TestCase;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ValidationTest extends TestCase
 {
     /**
      * A basic unit test example.
      */
-
     use RefreshDatabase;
 
     /** @test */
-    public function ユーザーはお問い合わせをCSV形式でダウンロードできる(): void
+    public function ユーザーはお問い合わせを_cs_v形式でダウンロードできる(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -28,10 +27,10 @@ class ValidationTest extends TestCase
 
         // Act
         $response = $this->actingAs($user)->get(route('contacts.export'), [
-            'keyword'     => 'テスト',
-            'gender'      => 1,
+            'keyword' => 'テスト',
+            'gender' => 1,
             'category_id' => 1,
-            'date'        => '2026-09-11',
+            'date' => '2026-09-11',
         ]);
 
         // Assert
@@ -60,10 +59,10 @@ class ValidationTest extends TestCase
 
         // Act
         $response = $this->actingAs($user)->get(route('contacts.export', [
-            'keyword'     => 'テスト',
-            'gender'      => 99,       // ❌ 不正な性別（0,1,2,3 以外の数値）
+            'keyword' => 'テスト',
+            'gender' => 99,       // ❌ 不正な性別（0,1,2,3 以外の数値）
             'category_id' => 1,        // ⭕️ 存在するカテゴリーID（例）
-            'date'        => '2026-09-11',
+            'date' => '2026-09-11',
         ]));
 
         // Assert
@@ -71,7 +70,7 @@ class ValidationTest extends TestCase
     }
 
     /** @test */
-    public function エクスポートの検索で存在しないカテゴリIDはエラーになる()
+    public function エクスポートの検索で存在しないカテゴリ_i_dはエラーになる()
     {
         // Arrange
         $user = User::factory()->create();
@@ -80,10 +79,10 @@ class ValidationTest extends TestCase
 
         // Act
         $response = $this->actingAs($user)->get(route('contacts.export', [
-            'keyword'     => 'テスト',
-            'gender'      => 1,
+            'keyword' => 'テスト',
+            'gender' => 1,
             'category_id' => 99999, // ❌
-            'date'        => '2026-09-11',
+            'date' => '2026-09-11',
         ]));
 
         // Assert
@@ -98,10 +97,10 @@ class ValidationTest extends TestCase
         $category = Category::factory()->create();
 
         $response = $this->actingAs($user)->get(route('admin.index'), [
-            'keyword'     => 'テスト',
-            'gender'      => 1,
+            'keyword' => 'テスト',
+            'gender' => 1,
             'category_id' => 1,
-            'date'        => '2026-09-11',
+            'date' => '2026-09-11',
         ]);
 
         // ① ステータスコード（200 OK）の検証
@@ -110,7 +109,7 @@ class ValidationTest extends TestCase
         // ② 検索結果の画面（ビュー）が返されているか検証
         $response->assertViewIs('admin.index'); // 該当のビュー名
     }
-    
+
     /** @test */
     public function お問い合わせ検索で不正な性別値はバリデーションエラーになる()
     {
@@ -119,10 +118,10 @@ class ValidationTest extends TestCase
         $category = Category::factory()->create();
 
         $response = $this->actingAs($user)->get(route('admin.index', [
-            'keyword'     => 'テスト',
-            'gender'      => 99,
+            'keyword' => 'テスト',
+            'gender' => 99,
             'category_id' => 1,
-            'date'        => '2026-09-11',
+            'date' => '2026-09-11',
         ]));
 
         $response->assertSessionHasErrors('gender');
@@ -134,28 +133,28 @@ class ValidationTest extends TestCase
         $category = Category::factory()->create();
         $tag = Tag::factory()->create();
         $contact = Contact::factory()->create();
-        
+
         $response = $this->post(route('contacts.store'), [
             'category_id' => $category->id,
-            'first_name'  => '山田',
-            'last_name'   => '太郎',
-            'gender'      => 1,
-            'email'       => 'test@example.com',
-            'tel'         => '09012345678', // 11桁の数値パターンに適合
-            'address'     => '東京都渋谷区1-1-1',
-            'building'    => 'テストビル101',
-            'detail'      => 'お問い合わせの本文です。',
-            'tag_ids'     => $tag->pluck('id')->toArray(),
+            'first_name' => '山田',
+            'last_name' => '太郎',
+            'gender' => 1,
+            'email' => 'test@example.com',
+            'tel' => '09012345678', // 11桁の数値パターンに適合
+            'address' => '東京都渋谷区1-1-1',
+            'building' => 'テストビル101',
+            'detail' => 'お問い合わせの本文です。',
+            'tag_ids' => $tag->pluck('id')->toArray(),
         ]);
 
         $response->assertRedirect(route('contacts.thanks'));
         $this->assertDatabaseHas('contacts', [
-            'detail'      => 'お問い合わせの本文です。',
+            'detail' => 'お問い合わせの本文です。',
             'category_id' => $category->id,
         ]);
 
         $this->assertDatabaseHas('contact_tag', [ // ※中間テーブル名が contact_tags の場合はそちらを指定
-        'tag_id' => $tag->id, // または $tag->first()->id
+            'tag_id' => $tag->id, // または $tag->first()->id
         ]);
     }
 
@@ -165,18 +164,18 @@ class ValidationTest extends TestCase
         $category = Category::factory()->create();
         $tag = Tag::factory()->create();
         $contact = Contact::factory()->create();
-        
+
         $response = $this->post(route('contacts.store'), [
             'category_id' => $category->id,
-            'first_name'  => '山田',
-            'last_name'   => '太郎',
-            'gender'      => 1,
-            'email'       => 'test@example.com',
-            'tel'         => '090-1234-5678', // ❌ ハイフンが含まれておりregexに違反
-            'address'     => '東京都渋谷区1-1-1',
-            'building'    => 'テストビル101',
-            'detail'      => 'お問い合わせの本文です。',
-            'tag_ids'     => $tag->pluck('id')->toArray(),
+            'first_name' => '山田',
+            'last_name' => '太郎',
+            'gender' => 1,
+            'email' => 'test@example.com',
+            'tel' => '090-1234-5678', // ❌ ハイフンが含まれておりregexに違反
+            'address' => '東京都渋谷区1-1-1',
+            'building' => 'テストビル101',
+            'detail' => 'お問い合わせの本文です。',
+            'tag_ids' => $tag->pluck('id')->toArray(),
         ]);
 
         $response->assertSessionHasErrors('tel');
@@ -242,10 +241,10 @@ class ValidationTest extends TestCase
         $user = User::factory()->create();
 
         $tag = Tag::factory()->create([
-            'name' => 'テストタグ'
+            'name' => 'テストタグ',
         ]);
 
-        $response = $this->actingAs($user)->post(route('admin.tags.store',), [
+        $response = $this->actingAs($user)->post(route('admin.tags.store'), [
             'name' => 'テストタグ',
         ]);
 
@@ -278,7 +277,6 @@ class ValidationTest extends TestCase
         $tag1 = Tag::factory()->create(['name' => '重要']);
 
         $tag2 = Tag::factory()->create(['name' => '未対応']);
-
 
         $response = $this->actingAs($user)->put(route('admin.tags.update', ['tag' => $tag1->id]), [
             'name' => '未対応',

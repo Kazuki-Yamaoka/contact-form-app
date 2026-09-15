@@ -45,7 +45,7 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
 
-    // 認証ビューの設定
+        // 認証ビューの設定
         Fortify::loginView(function () {
             return view('auth.login');
         });

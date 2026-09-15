@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class AdminTest extends TestCase
@@ -61,15 +60,15 @@ class AdminTest extends TestCase
         // 検索にヒットさせたいデータ（8件作成）
         Contact::factory()->count(8)->create([
             'first_name' => 'テスト',
-            'last_name'  => '太郎',
-            'email'      => 'test@example.com',
+            'last_name' => '太郎',
+            'email' => 'test@example.com',
         ]);
 
         // 検索にヒットさせないデータ（3件作成）
         Contact::factory()->count(3)->create([
             'first_name' => 'ダミー',
-            'last_name'  => '二郎',
-            'email'      => 'dummy@example.com',
+            'last_name' => '二郎',
+            'email' => 'dummy@example.com',
         ]);
 
         // 「テスト」で検索実行（1ページ目）
@@ -106,7 +105,7 @@ class AdminTest extends TestCase
         Contact::factory()->count(5)->create(['gender' => 2]);
 
         // 性別「男性(1)」で絞り込み実行
-        $response = $this->actingAs($user)->get(route('admin.index', ['gender' => 1,]));
+        $response = $this->actingAs($user)->get(route('admin.index', ['gender' => 1]));
 
         $response->assertStatus(200);
         $response->assertViewHas('contacts', function ($contacts) {
@@ -114,7 +113,6 @@ class AdminTest extends TestCase
         });
     }
 
-    
     /** @test */
     public function カテゴリ検索で7件ごとにページネーションされる(): void
     {
@@ -138,7 +136,7 @@ class AdminTest extends TestCase
         });
     }
 
-        /** @test */
+    /** @test */
     public function 日付検索で7件ごとにページネーションされる(): void
     {
         $user = User::factory()->create();
@@ -170,7 +168,7 @@ class AdminTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewHas('contact', function ($contact) use ($category) {
-            return $contact->category_id === $category->id 
+            return $contact->category_id === $category->id
                 && $contact->relationLoaded('category');
         });
     }
@@ -198,7 +196,6 @@ class AdminTest extends TestCase
         $response->assertStatus(200);
     }
 
-    
     /** @test */
     public function 認証済みユーザーがタグを作成できる()
     {
@@ -206,6 +203,8 @@ class AdminTest extends TestCase
         $tag = Tag::factory()->make()->toArray();
 
         $response = $this->actingAs($user)->post(route('admin.tags.store'), $tag);
+
+        // $response->assertSessionHasNoErrors();
 
         $response->assertRedirect(route('admin.index'));
     }
@@ -217,15 +216,15 @@ class AdminTest extends TestCase
         $tag = Tag::factory()->create(['name' => 'テスト']);
 
         $response = $this->actingAs($user)->put(route('admin.tags.update', $tag->id), [
-            'name' => '新テスト'
+            'name' => '新テスト',
         ]);
 
         $response->assertRedirect(route('admin.index'));
         // データベースが更新されたか確認
-            $this->assertDatabaseHas('tags', [
-                'id'   => $tag->id,
-                'name' => '新テスト',
-            ]);
+        $this->assertDatabaseHas('tags', [
+            'id' => $tag->id,
+            'name' => '新テスト',
+        ]);
     }
 
     /** @test */
@@ -250,7 +249,7 @@ class AdminTest extends TestCase
     }
 
     /** @test */
-    public function ログイン済みユーザーはフィルタ条件付きでCSVをDLできる()
+    public function ログイン済みユーザーはフィルタ条件付きで_cs_vを_d_lできる()
     {
         $user = User::factory()->create();
         Contact::factory()->count(7)->create(['gender' => 1]);
@@ -272,7 +271,7 @@ class AdminTest extends TestCase
     }
 
     /** @test */
-    public function ログイン済みユーザーはフィルタ無指定時は新着順でCSVをDLできる()
+    public function ログイン済みユーザーはフィルタ無指定時は新着順で_cs_vを_d_lできる()
     {
         $user = User::factory()->create();
         $contact1 = Contact::factory()->create(['created_at' => now()->subDays(2)]);
@@ -283,7 +282,7 @@ class AdminTest extends TestCase
 
         $response->assertStatus(200);
 
-// レスポンスのCSV文字列を取得
+        // レスポンスのCSV文字列を取得
         $csvContent = $response->streamedContent(); // または $response->getContent()
 
         // CSVの内容を行単位（配列）に分割する

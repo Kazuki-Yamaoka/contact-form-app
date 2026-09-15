@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::middleware('auth')->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/contacts/{contact}', [AdminController::class, 'show'])->name('admin.show');
@@ -28,7 +27,6 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/tags/{tag}', [TagController::class, 'update'])->name('admin.tags.update');
     Route::delete('/admin/tags/{tag}', [TagController::class, 'destroy'])->name('admin.tags.destroy');
 });
-
 
 Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
 Route::post('/contacts/confirm', [ContactController::class, 'confirm'])->name('contacts.confirm');

@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Contact;
 use App\Models\Category;
+use App\Models\Contact;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ContactTest extends TestCase
@@ -56,7 +55,7 @@ class ContactTest extends TestCase
         // Factory で住所含むすべてのダミーデータを生成し、関係性のある ID だけ上書き
         $data = Contact::factory()->make([
             'category_id' => $category->id,
-            'tag_ids'     => [$tag->id], // タグの ID 配列を追加
+            'tag_ids' => [$tag->id], // タグの ID 配列を追加
         ])->toArray();
 
         $response = $this->post(route('contacts.confirm'), $data);
@@ -98,7 +97,6 @@ class ContactTest extends TestCase
 
         $response = $this->get(route('contacts.thanks'));
 
-
         $response->assertStatus(200);
         $this->assertDatabaseHas('contact_tag', [
             'contact_id' => $contact->id,
@@ -106,7 +104,7 @@ class ContactTest extends TestCase
         ]);
     }
 
-        /** @test */
+    /** @test */
     public function お問い合わせの名前が文字列でないとバリデーションエラーになる()
     {
         $category = Category::factory()->create();

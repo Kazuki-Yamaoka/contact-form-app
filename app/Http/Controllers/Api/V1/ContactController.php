@@ -3,15 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ContactResource;
 use App\Http\Requests\IndexContactRequest;
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\UpdateContactRequest;
-use App\Models\Tag;
-use App\Models\Contact;
+use App\Http\Resources\ContactResource;
 use App\Models\Category;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\Request;
+use App\Models\Contact;
 
 class ContactController extends Controller
 {
@@ -22,7 +19,7 @@ class ContactController extends Controller
     {
 
         // return Contact::with(['category', 'tags'])->get();
-         
+
         $perPage = $request->input('per_page', 20);
 
         $query = Contact::with(['category', 'tags']);
@@ -30,10 +27,10 @@ class ContactController extends Controller
         if ($request->filled('keyword')) {
             $keyword = $request->input('keyword');
 
-        $query->where(function ($q) use ($keyword) {
+            $query->where(function ($q) use ($keyword) {
                 $q->where('first_name', 'like', "%{$keyword}%")
-                  ->orWhere('last_name', 'like', "%{$keyword}%")
-                  ->orWhere('email', 'like', "%{$keyword}%");
+                    ->orWhere('last_name', 'like', "%{$keyword}%")
+                    ->orWhere('email', 'like', "%{$keyword}%");
             });
         }
 
@@ -41,7 +38,7 @@ class ContactController extends Controller
 
         return ContactResource::collection($contacts);
     }
-        
+
     /**
      * Store a newly created resource in storage.
      */
@@ -53,9 +50,9 @@ class ContactController extends Controller
         $contact = Contact::create($validated);
 
         if ($request->has('tag_ids')) {
-        // $request->input('tag_ids') を使って送信された配列 [1, 2] を取得して結びつける
+            // $request->input('tag_ids') を使って送信された配列 [1, 2] を取得して結びつける
             $contact->tags()->attach($request->input('tag_ids'));
-    }
+        }
 
         // 4. 表示用にリレーション（category, tags）をロード
         $contact->load(['category', 'tags']);
