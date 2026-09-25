@@ -20,7 +20,8 @@ class AdminTest extends TestCase
     public function 認証されたユーザーのみが管理ダッシュボードにアクセスできる()
     {
         $user = User::factory()->create();
-        $contact = Contact::factory()->create();
+        $category = Category::factory()->create();
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         $response = $this->actingAs($user)->get(route('admin.index'));
 
@@ -39,7 +40,8 @@ class AdminTest extends TestCase
     public function ページネーションが7件ごとにされている()
     {
         $user = User::factory()->create();
-        $contact = Contact::factory()->count(30)->create();
+        $categories = Category::factory(5)->create();
+        $contact = Contact::factory()->count(30)->create(['category_id' => $categories->random()->id]);
         $category = Category::factory()->create();
 
         $response = $this->actingAs($user)->get(route('admin.index'), [
@@ -57,11 +59,13 @@ class AdminTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $categories = Category::factory(5)->create();
         // 検索にヒットさせたいデータ（8件作成）
         Contact::factory()->count(8)->create([
             'first_name' => 'テスト',
             'last_name' => '太郎',
             'email' => 'test@example.com',
+            'category_id' => $categories->random()->id,
         ]);
 
         // 検索にヒットさせないデータ（3件作成）
@@ -99,10 +103,11 @@ class AdminTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $categories = Category::factory(5)->create();
         // 男性データを8件作成（例: gender = 1）
-        Contact::factory()->count(8)->create(['gender' => 1]);
+        Contact::factory()->count(8)->create(['gender' => 1, 'category_id' => $categories->random()->id]);
         // 女性データを5件作成（例: gender = 2）
-        Contact::factory()->count(5)->create(['gender' => 2]);
+        Contact::factory()->count(5)->create(['gender' => 2, 'category_id' => $categories->random()->id]);
 
         // 性別「男性(1)」で絞り込み実行
         $response = $this->actingAs($user)->get(route('admin.index', ['gender' => 1]));
@@ -141,10 +146,12 @@ class AdminTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $categories = Category::factory(5)->create();
+
         // カテゴリーid1を8件作成
-        Contact::factory()->count(8)->create(['created_at' => '2026-9-13']);
+        Contact::factory()->count(8)->create(['created_at' => '2026-9-13', 'category_id' => $categories->random()->id]);
         // カテゴリーid1を5件作成
-        Contact::factory()->count(5)->create(['created_at' => '2026-9-14']);
+        Contact::factory()->count(5)->create(['created_at' => '2026-9-14', 'category_id' => $categories->random()->id]);
 
         // 性別「男性(1)」で絞り込み実行
         $response = $this->actingAs($user)->get(route('admin.index', [
@@ -177,7 +184,8 @@ class AdminTest extends TestCase
     public function お問い合わせの削除をして管理ダッシュボードにリダイレクトされる()
     {
         $user = User::factory()->create();
-        $contact = Contact::factory()->create();
+        $category = Category::factory()->create();
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         $response = $this->actingAs($user)->delete(route('admin.destroy', $contact->id));
 
@@ -203,8 +211,6 @@ class AdminTest extends TestCase
         $tag = Tag::factory()->make()->toArray();
 
         $response = $this->actingAs($user)->post(route('admin.tags.store'), $tag);
-
-        // $response->assertSessionHasNoErrors();
 
         $response->assertRedirect(route('admin.index'));
     }
@@ -249,11 +255,12 @@ class AdminTest extends TestCase
     }
 
     /** @test */
-    public function ログイン済みユーザーはフィルタ条件付きで_cs_vを_d_lできる()
+    public function ログイン済みユーザーはフィルタ条件付きで_csvをダウンロードできる()
     {
         $user = User::factory()->create();
-        Contact::factory()->count(7)->create(['gender' => 1]);
-        Contact::factory()->count(8)->create(['gender' => 2]);
+        $category = Category::factory(5)->create();
+        Contact::factory()->count(7)->create(['gender' => 1, 'category_id' => $category->random()->id]);
+        Contact::factory()->count(8)->create(['gender' => 2, 'category_id' => $category->random()->id]);
 
         $response = $this->actingAs($user)->get(route('contacts.export', [
             'gender' => 1,
@@ -274,9 +281,10 @@ class AdminTest extends TestCase
     public function ログイン済みユーザーはフィルタ無指定時は新着順で_cs_vを_d_lできる()
     {
         $user = User::factory()->create();
-        $contact1 = Contact::factory()->create(['created_at' => now()->subDays(2)]);
-        $contact2 = Contact::factory()->create(['created_at' => now()->subDays()]);
-        $contact3 = Contact::factory()->create(['created_at' => now()]);
+        $categories = Category::factory(3)->create();
+        $contact1 = Contact::factory()->create(['created_at' => now()->subDays(2), 'category_id' => $categories->random()->id]);
+        $contact2 = Contact::factory()->create(['created_at' => now()->subDays(), 'category_id' => $categories->random()->id]);
+        $contact3 = Contact::factory()->create(['created_at' => now(), 'category_id' => $categories->random()->id]);
 
         $response = $this->actingAs($user)->get(route('contacts.export'));
 

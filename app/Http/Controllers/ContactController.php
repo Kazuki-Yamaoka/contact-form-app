@@ -44,10 +44,13 @@ class ContactController extends Controller
     {
         $validated = $request->validated();
 
+        if ($request->has('back')) {
+            return redirect('/')->withInput();
+        }
+
         $contact = Contact::create($validated);
 
-        // 選択されたタグ（中間テーブル contact_tag）を保
-        // 存
+        // 選択されたタグ（中間テーブル contact_tag）を保存
         if (! empty($validated['tag_ids'])) {
             $contact->tags()->sync($validated['tag_ids']);
         }
@@ -57,6 +60,6 @@ class ContactController extends Controller
 
     public function thanks()
     {
-        view('contact.thanks');
+        return view('contact.thanks');
     }
 }

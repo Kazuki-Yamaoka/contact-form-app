@@ -22,8 +22,8 @@ class ValidationTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $contact = Contact::factory()->create();
         $category = Category::factory()->create();
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         // Act
         $response = $this->actingAs($user)->get(route('contacts.export'), [
@@ -54,8 +54,8 @@ class ValidationTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $contact = Contact::factory()->create();
         $category = Category::factory()->create();
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         // Act
         $response = $this->actingAs($user)->get(route('contacts.export', [
@@ -74,8 +74,8 @@ class ValidationTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $contact = Contact::factory()->create();
         $category = Category::factory()->create();
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         // Act
         $response = $this->actingAs($user)->get(route('contacts.export', [
@@ -93,8 +93,8 @@ class ValidationTest extends TestCase
     public function お問い合わせ一覧検索ができる()
     {
         $user = User::factory()->create();
-        $contact = Contact::factory()->create();
         $category = Category::factory()->create();
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         $response = $this->actingAs($user)->get(route('admin.index'), [
             'keyword' => 'テスト',
@@ -107,15 +107,15 @@ class ValidationTest extends TestCase
         $response->assertOk();
 
         // ② 検索結果の画面（ビュー）が返されているか検証
-        $response->assertViewIs('admin.index'); // 該当のビュー名
+        $response->assertViewIs('admin.index');
     }
 
     /** @test */
     public function お問い合わせ検索で不正な性別値はバリデーションエラーになる()
     {
         $user = User::factory()->create();
-        $contact = Contact::factory()->create();
         $category = Category::factory()->create();
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         $response = $this->actingAs($user)->get(route('admin.index', [
             'keyword' => 'テスト',
@@ -132,7 +132,7 @@ class ValidationTest extends TestCase
     {
         $category = Category::factory()->create();
         $tag = Tag::factory()->create();
-        $contact = Contact::factory()->create();
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         $response = $this->post(route('contacts.store'), [
             'category_id' => $category->id,
@@ -163,7 +163,7 @@ class ValidationTest extends TestCase
     {
         $category = Category::factory()->create();
         $tag = Tag::factory()->create();
-        $contact = Contact::factory()->create();
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         $response = $this->post(route('contacts.store'), [
             'category_id' => $category->id,
@@ -283,5 +283,81 @@ class ValidationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('name');
+    }
+
+    /** @test */
+    public function 正しいフィルタ条件で_cs_vエクスポートができる()
+    {
+        $user = User::factory()->create();
+        // 1. 前提データの準備（カテゴリを作成）
+        $category = Category::factory()->create(['content' => '商品について']);
+
+        // 抽出対象のデータ（男性）
+        $targetContact = Contact::factory()->create([
+            'last_name' => '佐藤',
+            'first_name' => '太郎',
+            'gender' => 1, // 男性
+            'email' => 'sato@example.com',
+            'category_id' => $category->id,
+        ]);
+
+        // 抽出対象外のデータ（女性）
+        $otherContact = Contact::factory()->create([
+            'last_name' => '鈴木',
+            'first_name' => '花子',
+            'gender' => 2, // 女性
+            'email' => 'suzuki@example.com',
+            'category_id' => $category->id,
+        ]);
+
+        // 2. 検索条件（gender=1）を付与してエクスポートを呼び出す
+        $response = $this->actingAs($user)->get(route('contacts.export', ['gender' => 1]));
+
+        // 3. レスポンス（ステータス・ヘッダー）の検証
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+
+        // 4. CSVの中身（コンテンツ）の検証
+        $content = $response->streamedContent();
+
+        // ヘッダー行が存在するか
+        $this->assertStringContainsString('ID,氏名,性別,メール', $content);
+
+        // フィルタで指定した男性のデータが含まれているか
+        $this->assertStringContainsString('佐藤 太郎', $content);
+        $this->assertStringContainsString('男性', $content);
+        $this->assertStringContainsString('sato@example.com', $content);
+
+        // フィルタ対象外である女性のデータが含まれていない（除外されている）か
+        $this->assertStringNotContainsString('鈴木 花子', $content);
+        $this->assertStringNotContainsString('suzuki@example.com', $content);
+    }
+
+    /** @test */
+    public function cs_vエクスポートで不正な性別が指定された場合はエラーで拒否される()
+    {
+        $user = User::factory()->create();
+        // 1. 存在しない性別（例: 99）を指定して実行
+        $response = $this->actingAs($user)->get(route('contacts.export', ['gender' => 99]));
+
+        // 2. HTTPステータスコードが 302 であることを検証
+        $response->assertStatus(302);
+
+        // 3. 'gender' のキーでバリデーションエラーが発生していることを検証
+        $response->assertSessionHasErrors(['gender']);
+    }
+
+    /** @test */
+    public function cs_vエクスポートで存在しないカテゴリー_i_dが指定された場合はエラーで拒否される()
+    {
+        $user = User::factory()->create();
+        // 1. データベースに存在しないカテゴリID（例: 9999）を指定して実行
+        $response = $this->actingAs($user)->get(route('contacts.export', ['category_id' => 9999]));
+
+        // 2. HTTPステータスコードが 302 であることを検証
+        $response->assertStatus(302);
+
+        // 3. 'category_id' のキーでバリデーションエラーが発生していることを検証
+        $response->assertSessionHasErrors(['category_id']);
     }
 }

@@ -28,7 +28,7 @@ class AdminController extends Controller
         }
 
         // 2. 性別フィルタ
-        if (isset($validated['gender']) && $validated['gender'] !== '') {
+        if (isset($validated['gender']) && $validated['gender'] != '0' && $validated['gender'] !== '') {
             $query->where('gender', $validated['gender']);
         }
 
@@ -73,7 +73,7 @@ class AdminController extends Controller
         $query = Contact::with(['category', 'tags']);
 
         if (! empty($validated['keyword'])) {
-            $keyword = validated['keyword'];
+            $keyword = $validated['keyword'];
             $query->where(function ($q) use ($keyword) {
                 $q->where('first_name', 'like', "%{$keyword}%")
                     ->orWhere('last_name', 'like', "%{$keyword}%")
@@ -106,16 +106,15 @@ class AdminController extends Controller
             // CSV ヘッダー行の書き込み
             fputcsv($handle, [
                 'ID',
-                'お名前',
+                '氏名',
                 '性別',
-                'メールアドレス',
-                '電話番号',
+                'メール',
+                '電話',
                 '住所',
-                '建物名',
+                '建物',
                 'カテゴリ',
-                'タグ',
-                'お問い合わせ内容',
-                '登録日時',
+                '内容',
+                '作成日時',
             ]);
 
             // メモリ枯渇を防ぐため chunk / cursor を使用して順次出力
@@ -140,8 +139,7 @@ class AdminController extends Controller
                         $contact->tel,
                         $contact->address,
                         $contact->building,
-                        $contact->category?->name ?? '',
-                        $tagNames,
+                        $contact->category?->content ?? '',
                         $contact->detail,
                         $contact->created_at?->format('Y-m-d H:i:s'),
                     ]);

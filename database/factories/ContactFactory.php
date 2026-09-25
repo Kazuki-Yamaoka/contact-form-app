@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Category;
 use App\Models\Contact;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,7 +19,7 @@ class ContactFactory extends Factory
     {
         return [
             //
-            'category_id' => Category::factory(),
+            'category_id' => fake()->numberBetween(1, 5),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'gender' => fake()->numberBetween(1, 3), // 1:男性, 2:女性, 3:その他

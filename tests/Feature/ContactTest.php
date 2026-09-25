@@ -18,21 +18,48 @@ class ContactTest extends TestCase
     /** @test */
     public function お問い合わせフォーム入力ページが表示される(): void
     {
+        // 1. テストデータの作成
         $category = Category::factory()->create();
         $tag = Tag::factory()->create();
 
-        $response = $this->get(route('contacts.index'), [$category, $tag]);
+        // 2. 入力ページ（GET /）にアクセス
+        $response = $this->get(route('contacts.index'));
 
+        // 3. レスポンスの検証
         $response->assertStatus(200);
+
+        // ビュー変数として categories や tags が渡されていることを確認
+        $response->assertViewHas('categories');
+        $response->assertViewHas('tags');
     }
 
     /** @test */
-    public function サンクスページが表示される()
+    public function 確認画面からサンクスページにリダイレクトされる()
     {
-        $category = Category::factory()->make();
-        $tag = Tag::factory()->make();
+        $category = Category::factory()->create();
 
-        $response = $this->get(route('contacts.store'), [$category, $tag]);
+        $data = [
+            'first_name' => '太郎',
+            'last_name' => '山田',
+            'gender' => 1,
+            'email' => 'yamada@example.com',
+            'tel' => '09012345678',
+            'address' => '東京都新宿区',
+            'category_id' => $category->id,
+            'detail' => 'お問い合わせのテスト内容です。',
+        ];
+
+        $response = $this->post(route('contacts.store'), $data);
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('contacts.thanks'));
+    }
+
+    /** @test */
+    public function サンクスページが正常に表示される()
+    {
+        // サンクスページ（GET /thanks）自体のアクセス・表示確認
+        $response = $this->get(route('contacts.thanks'));
 
         $response->assertStatus(200);
     }
@@ -42,15 +69,6 @@ class ContactTest extends TestCase
     {
         $category = Category::factory()->create();
         $tag = Tag::factory()->create();
-
-        /*
-        $contact = Contact::factory()->make([
-            'first_name' => '太郎',
-            'last_name' => '山田',
-            'email' => 'taro@example.com',
-            'category_id' => $category->id,
-        ])->toArray();
-        */
 
         // Factory で住所含むすべてのダミーデータを生成し、関係性のある ID だけ上書き
         $data = Contact::factory()->make([

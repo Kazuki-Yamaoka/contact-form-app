@@ -134,6 +134,7 @@ class ApiContactTest extends TestCase
         Contact::factory()->create([
             'first_name' => '佐藤',
             'gender' => 2,
+            'category_id' => $category->id,
         ]);
 
         // Act: 検索パラメータを付与してリクエスト
@@ -151,8 +152,9 @@ class ApiContactTest extends TestCase
     /** @test */
     public function test_can_paginate_contacts(): void
     {
+        $category = Category::factory()->create();
         // Arrange: 15件のデータを作成
-        Contact::factory()->count(15)->create();
+        Contact::factory()->count(15)->create(['category_id' => $category->id]);
 
         // Act: per_page=5, page=2 を指定
         $response = $this->getJson('/api/v1/contacts?'.http_build_query([
@@ -174,13 +176,13 @@ class ApiContactTest extends TestCase
         // Act: 不正な値（存在しない性別、不正な日付フォーマット、文字列のページ数など）を指定
         $response = $this->getJson('/api/v1/contacts?'.http_build_query([
             'gender' => 99,                   // in:1,2,3 違反
-            'created_at' => 'invalid-date-format', // date 違反
+            'date' => 'invalid-date-format', // date 違反
             'per_page' => 'not-a-number',       // integer 違反
         ]));
 
         // Assert: 422 エラーと該当のフィールドにバリデーションエラーが発生しているか確認
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['gender', 'created_at', 'per_page']);
+            ->assertJsonValidationErrors(['gender', 'date', 'per_page']);
     }
 
     /** @test */
@@ -231,8 +233,10 @@ class ApiContactTest extends TestCase
     }
 
     /** @test */
-    public function 特定のタスクの_jso_nレスポンス内容が正しい(): void
+    public function 特定のタスクの_jsonレスポンス内容が正しい(): void
     {
+        $this->withoutExceptionHandling();
+
         // Arrange
         $category = Category::factory()->create(['content' => 'テストカテゴリー']);
         $contact = Contact::factory()->create([
@@ -263,7 +267,7 @@ class ApiContactTest extends TestCase
     }
 
     /** @test */
-    public function 存在しないお問い合わせ_i_dで詳細表示しようとすると404エラーを返す(): void
+    public function 存在しないお問い合わせidで詳細表示しようとすると404エラーを返す(): void
     {
         // Act
         $response = $this->getJson('/api/v1/contacts/99999');
@@ -273,7 +277,7 @@ class ApiContactTest extends TestCase
     }
 
     /** @test */
-    public function 無効なお問い合わせ_i_dで404エラーを返す(): void
+    public function 無効なお問い合わせidで404エラーを返す(): void
     {
         // Act
         $response = $this->getJson('/api/v1/contacts/invalid');
@@ -283,7 +287,7 @@ class ApiContactTest extends TestCase
     }
 
     /** @test */
-    public function お問い合わせを_jso_n形式で新規作成できる(): void
+    public function お問い合わせを_json形式で新規作成できる(): void
     {
         // Arrange
         $category = Category::factory()->create();
@@ -320,12 +324,15 @@ class ApiContactTest extends TestCase
     /** @test */
     public function test_returns_422_when_create_parameters_are_invalid(): void
     {
+        // Factoryでダミーデータを作成し、検証したいフィールドだけ不正な値に上書き
+        $invalidData = Contact::factory()->make([
+            'gender' => 99,              // in:1,2,3 違反
+            'email' => 'invalid-email', // email 形式違反
+            'tel' => 'invalid-string', // regex 違反
+        ])->toArray();
+
         // Act: 不正な値（存在しない性別、不正な日付フォーマット、文字列のページ数など）を指定
-        $response = $this->postJson('/api/v1/contacts?'.http_build_query([
-            'gender' => 99,                   // in:1,2,3 違反
-            'email' => 'invalid-email',
-            'tel' => 'invalid-string',
-        ]));
+        $response = $this->postJson('/api/v1/contacts', $invalidData);
 
         // Assert: 422 エラーと該当のフィールドにバリデーションエラーが発生しているか確認
         $response->assertStatus(422)
@@ -333,7 +340,7 @@ class ApiContactTest extends TestCase
     }
 
     /** @test */
-    public function お問い合わせを_jso_n形式で更新できる(): void
+    public function お問い合わせを_json形式で更新できる(): void
     {
         // Arrange
         $category = Category::factory()->create();
@@ -387,7 +394,9 @@ class ApiContactTest extends TestCase
     public function test_returns_422_when_update_parameters_are_invalid(): void
     {
         // Arrange: 更新対象のコンタクトを 1 件作成
-        $contact = Contact::factory()->create();
+        $category = Category::factory()->create();
+
+        $contact = Contact::factory()->create(['category_id' => $category->id]);
 
         // Act: 不正な値（存在しない性別、不正な日付フォーマット、文字列のページ数など）を指定
         $response = $this->putJson("/api/v1/contacts/{$contact->id}", [

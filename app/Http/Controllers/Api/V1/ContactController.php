@@ -3,30 +3,25 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\IndexContactRequest;
-use App\Http\Requests\StoreContactRequest;
-use App\Http\Requests\UpdateContactRequest;
+use App\Http\Requests\Api\V1\IndexContactRequest;
+use App\Http\Requests\Api\V1\StoreContactRequest;
+use App\Http\Requests\Api\V1\UpdateContactRequest;
 use App\Http\Resources\ContactResource;
-use App\Models\Category;
 use App\Models\Contact;
 
 class ContactController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(IndexContactRequest $request)
     {
-
-        // return Contact::with(['category', 'tags'])->get();
+        $validated = $request->validated();
 
         $perPage = $request->input('per_page', 20);
 
         $query = Contact::with(['category', 'tags']);
 
-        if ($request->filled('keyword')) {
-            $keyword = $request->input('keyword');
-
+        // 1. キーワード検索（名前・メールアドレス）
+        if (! empty($validated['keyword'])) {
+            $keyword = $validated['keyword'];
             $query->where(function ($q) use ($keyword) {
                 $q->where('first_name', 'like', "%{$keyword}%")
                     ->orWhere('last_name', 'like', "%{$keyword}%")
@@ -34,61 +29,67 @@ class ContactController extends Controller
             });
         }
 
+        // 2. 性別フィルタ
+        if (isset($validated['gender']) && $validated['gender'] != '0' && $validated['gender'] !== '') {
+            $query->where('gender', $validated['gender']);
+        }
+
+        // 3. カテゴリフィルタ
+        if (! empty($validated['category_id'])) {
+            $query->where('category_id', $validated['category_id']);
+        }
+
+        // 4. 日付フィルタ（リクエストの 'date' を DB の 'created_at' にマッピング）
+        if (! empty($validated['date'])) {
+            $query->whereDate('created_at', $validated['date']);
+        }
+
         $contacts = $query->latest()->paginate($perPage);
 
         return ContactResource::collection($contacts);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreContactRequest $request)
     {
-        //
         $validated = $request->validated();
 
         $contact = Contact::create($validated);
 
         if ($request->has('tag_ids')) {
-            // $request->input('tag_ids') を使って送信された配列 [1, 2] を取得して結びつける
             $contact->tags()->attach($request->input('tag_ids'));
         }
 
-        // 4. 表示用にリレーション（category, tags）をロード
         $contact->load(['category', 'tags']);
 
         return (new ContactResource($contact))
-            ->additional(['message' => 'お問い合わせを更新しました'])
+            ->additional(['message' => 'お問い合わせを作成しました'])
             ->response()
             ->setStatusCode(201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Contact $contact): ContactResource
     {
-        //
         $contact->load(['category', 'tags']);
 
-        /*
-        // お問い合わせが見つからない場合
-        if (!$contact) {
+        if (! $contact) {
             return response()->json([
-                'message' => 'お問い合わせが見つかりませんでした。'
+                'message' => 'タスクが見つかりません',
+                'error_code' => 'TASK_NOT_FOUND',
             ], 404);
         }
-        */
 
         return new ContactResource($contact);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateContactRequest $request, Contact $contact)
     {
-        //
+        if (! $contact) {
+            return response()->json([
+                'message' => 'タスクが見つかりません',
+                'error_code' => 'TASK_NOT_FOUND',
+            ], 404);
+        }
+
         $validated = $request->validated();
 
         $contact->update($validated);
@@ -99,37 +100,21 @@ class ContactController extends Controller
 
         $contact->load(['category', 'tags']);
 
-        /*
-        if(!$contact) {
-            return response()->json([
-                'message' => 'お問い合わせが見つかりませんでした。',
-            ], 404);
-        }
-        */
-
         return (new ContactResource($contact))
             ->additional(['message' => 'お問い合わせを更新しました'])
             ->response();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Contact $contact)
     {
-        //
         $contact = Contact::with(['category', 'tags']);
 
-        /*
-        // Laravel の「Implicit Binding（ルートモデル結合）」を使っているため、
-        // $contact が見つからない場合は自動で 404 が返ります。
-        // そのため if (!$contact) の判定は不要です。
-        if(!$contact) {
+        if (! $contact) {
             return response()->json([
-                'message' => 'お問い合わせが見つかりません',
+                'message' => 'タスクが見つかりません',
+                'error_code' => 'TASK_NOT_FOUND',
             ], 404);
         }
-        */
 
         $contact->delete();
 
