@@ -22,6 +22,7 @@ class RelationTest extends TestCase
     {
         // 1. Arrange（準備）
         $category = Category::factory()->create();
+        $othercategory = Category::factory()->create();
 
         // 親の category_id を指定して Contact を 3件作成
         Contact::factory()->count(3)->create([
@@ -29,18 +30,16 @@ class RelationTest extends TestCase
         ]);
 
         // 関係ない別のカテゴリのContactも作っておく（混ざらないかの検証用）
-        Contact::factory()->count(2)->create();
+        Contact::factory()->count(2)->create([
+            'category_id' => $othercategory->id,
+        ]);
 
         // 2. Act（実行）
         $contacts = $category->contacts;
 
         // 3. Assert（検証）
         // 他のカテゴリのContactは含まれず、自分の配下の 3件 だけが取得できているか
-        // expect($contacts)->toHaveCount(3);
         $this->assertCount(3, $contacts);
-
-        // データベース上の判定（PHPUnitスタイルの場合）
-        // $this->assertCount(3, $category->contacts);
     }
 
     /** @test */

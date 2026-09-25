@@ -73,10 +73,28 @@
 
 <!-- 電話番号 -->
 @php
-    $telParts = explode('-', old('tel', ''));
-    $tel1 = old('tel1', $telParts[0] ?? '');
-    $tel2 = old('tel2', $telParts[1] ?? '');
-    $tel3 = old('tel3', $telParts[2] ?? '');
+    $telFull = old('tel', '');
+    $digits = preg_replace('/[^\d]/', '', $telFull);
+
+    // 数字のみで11桁の場合（例: 09012345678 -> 090 / 1234 / 5678）
+    if (strlen($digits) === 11) {
+        $tel1 = substr($digits, 0, 3);
+        $tel2 = substr($digits, 3, 4);
+        $tel3 = substr($digits, 7, 4);
+    } 
+    // ハイフン区切りで入ってきた場合の考慮（万一用）
+    elseif (str_contains($telFull, '-')) {
+        $telParts = explode('-', $telFull);
+        $tel1 = $telParts[0] ?? '';
+        $tel2 = $telParts[1] ?? '';
+        $tel3 = $telParts[2] ?? '';
+    } 
+    // その他（個別に入力値が保持されている場合など）
+    else {
+        $tel1 = old('tel1', '');
+        $tel2 = old('tel2', '');
+        $tel3 = old('tel3', '');
+    }
 @endphp
 <div class="grid grid-cols-3 gap-8 mb-4">
     <div class="col-span-1 flex items-center">

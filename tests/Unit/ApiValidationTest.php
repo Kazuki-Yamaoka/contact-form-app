@@ -5,19 +5,15 @@ namespace Tests\Unit;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Tag;
-// use PHPUnit\Framework\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ApiValidationTest extends TestCase
 {
-    /**
-     * A basic unit test example.
-     */
     use RefreshDatabase;
 
     /** @test */
-    public function お問い合わせ一覧を検索して_ap_iで取得できる(): void
+    public function お問い合わせ一覧を検索して_apiで取得できる(): void
     {
         // Arrange
         $category = Category::factory()->create();
@@ -35,7 +31,7 @@ class ApiValidationTest extends TestCase
             'keyword' => 'テスト',
             'gender' => 1,
             'category_id' => $category->id,
-            'date' => '2026-09-12',
+            'date' => now()->toDateString(),
         ]));
 
         // Assert
@@ -107,11 +103,11 @@ class ApiValidationTest extends TestCase
     public function test_returns_422_when_date_is_invalid_string()
     {
         $response = $this->getJson(route('v1.contacts.index', [
-            'created_at' => 'invalid-date-string', // 👈 文字列を渡す
+            'date' => 'invalid-date-string', // 👈 文字列を渡す
         ]));
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['created_at']);
+            ->assertJsonValidationErrors(['date']);
     }
 
     /** @test */

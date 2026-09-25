@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Api\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreContactRequest extends FormRequest
+class UpdateContactRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -23,8 +23,7 @@ class StoreContactRequest extends FormRequest
             'building' => ['nullable', 'string', 'max:255'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'detail' => ['required', 'string', 'max:120'],
-            'tag_ids' => ['nullable', 'array'],
-            'tag_ids.*' => ['integer', 'exists:tags,id'],
+            'tag_ids[]' => ['nullable', 'array', 'integer', 'exists:tags,id'],
         ];
     }
 
@@ -41,6 +40,10 @@ class StoreContactRequest extends FormRequest
             'category_id.required' => 'お問い合わせの種類を選択してください',
             'detail.required' => 'お問い合わせ内容を入力してください',
             'detail.max' => 'お問い合わせ内容は120文字以内で入力してください',
+            'tel.regex' => '電話番号はハイフンなしの10〜11桁で入力してください',
+            'gender.in' => '性別の値が不正です',
+            'category_id.exists' => '選択されたカテゴリーが存在しません',
+            'tag_ids[].exists' => '選択されたタグが存在しません',
         ];
     }
 }
