@@ -17,10 +17,14 @@ API: お問い合わせのCRUD処理（一覧、詳細、作成、更新、削�
 
 # 環境構築手順  
 1. スターターキットクローン  
-git clone git@github.com:Kazuki-Yamaoka/contact-form-app.git  
+```bash
+git clone git@github.com:Kazuki-Yamaoka/contact-form-app.git
+```
 
 2. プロジェクトディレクトリに移動  
-cd contact-form-app  
+```bash
+cd contact-form-app
+```
 
 3. パッケージをインストール  
 ```bash
